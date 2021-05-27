@@ -8,14 +8,14 @@ import android.view.ViewGroup
 import android.widget.Button
 import android.widget.TextView
 import androidx.fragment.app.Fragment
-import androidx.fragment.app.FragmentTransaction
-import com.rsschool.android2021.FirstFragment.Companion.newInstance
+import com.rsschool.android2021.interfaces.OnBackPressedListener
 import com.rsschool.android2021.interfaces.SecondFragmentListener
 
-class SecondFragment : Fragment() {
+class SecondFragment : Fragment(), OnBackPressedListener {
     private lateinit var secondFragmentListener: SecondFragmentListener
     private lateinit var backButton: Button
     private lateinit var result: TextView
+    private var previousResult: Int = 0
 
     override fun onAttach(context: Context) {
         super.onAttach(context)
@@ -43,23 +43,18 @@ class SecondFragment : Fragment() {
         val max = arguments?.getInt(MAX_VALUE_KEY) ?: 0
 
         result.text = generate(min, max).toString()
-        val previousResult = result.text.toString().toInt()
+        previousResult = result.text.toString().toInt()
 
         backButton.setOnClickListener {
-            secondFragmentListener.openFirstFragment(previousResult)
+            secondFragmentListener.firstFragment(previousResult)
         }
     }
 
     private fun generate(min: Int, max: Int): Int {
-        return if (min > max) {
-            (max..min).random()
-        } else {
-            (min..max).random()
-        }
+        return (min..max).random()
     }
 
     companion object {
-
         @JvmStatic
         fun newInstance(min: Int, max: Int): SecondFragment {
             val fragment = SecondFragment()
@@ -72,5 +67,9 @@ class SecondFragment : Fragment() {
 
         private const val MIN_VALUE_KEY = "MIN_VALUE"
         private const val MAX_VALUE_KEY = "MAX_VALUE"
+    }
+
+    override fun onBackPressed() {
+        secondFragmentListener.firstFragment(previousResult)
     }
 }

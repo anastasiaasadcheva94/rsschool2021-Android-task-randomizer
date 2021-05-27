@@ -2,24 +2,25 @@ package com.rsschool.android2021
 
 import android.content.Context
 import android.os.Bundle
+import android.view.KeyEvent
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.Button
 import android.widget.EditText
 import android.widget.TextView
-import androidx.core.widget.doAfterTextChanged
+import android.widget.Toast
+import androidx.core.widget.addTextChangedListener
 import androidx.fragment.app.Fragment
-import androidx.fragment.app.FragmentTransaction
-import com.rsschool.android2021.SecondFragment.Companion.newInstance
 import com.rsschool.android2021.interfaces.FirstFragmentListener
+
 
 class FirstFragment : Fragment() {
     private lateinit var firstFragmentListener: FirstFragmentListener
-    private var generateButton: Button? = null
-    private var previousResult: TextView? = null
-    private var min: Int = 0
-    private var max: Int = 0
+    private lateinit var generateButton: Button
+    private lateinit var previousResult: TextView
+    private var min = ""
+    private var max = ""
 
     override fun onAttach(context: Context) {
         super.onAttach(context)
@@ -42,30 +43,60 @@ class FirstFragment : Fragment() {
         super.onViewCreated(view, savedInstanceState)
         previousResult = view.findViewById(R.id.previous_result)
         generateButton = view.findViewById(R.id.generate)
+        generateButton.isEnabled = false
 
         val result = arguments?.getInt(PREVIOUS_RESULT_KEY)
-        previousResult?.text = "Previous result: ${result.toString()}"
+        previousResult.text = "Previous result: ${result.toString()}"
 
-        view.findViewById<EditText>(R.id.min_value).doAfterTextChanged {
-            view.findViewById<EditText>(R.id.min_value).text.toString().toIntOrNull()?.let {
-                min = it
-            }
+        view.findViewById<EditText>(R.id.min_value).addTextChangedListener {
+            min = view.findViewById<EditText>(R.id.min_value).text.toString()
+            changeEnable()
         }
 
-        view.findViewById<EditText>(R.id.max_value).doAfterTextChanged {
-            view.findViewById<EditText>(R.id.max_value).text.toString().toIntOrNull()?.let {
-                max = it
-            }
+        view.findViewById<EditText>(R.id.max_value).addTextChangedListener {
+            max = view.findViewById<EditText>(R.id.max_value).text.toString()
+            changeEnable()
         }
 
-        generateButton?.setOnClickListener {
-            firstFragmentListener.openSecondFragment(min, max)
+        view.findViewById<EditText>(R.id.max_value)
+            .setOnKeyListener(View.OnKeyListener { v, keyCode, event ->
+                if (keyCode == KeyEvent.KEYCODE_ENTER && event.action == KeyEvent.ACTION_UP) {
+                    if (checkValues()) {
+                        firstFragmentListener.secondFragment(min.toInt(), max.toInt())
+                    }
+                    return@OnKeyListener true
+                }
+                false
+            })
+
+        generateButton.setOnClickListener {
+            firstFragmentListener.secondFragment(min.toInt(), max.toInt())
         }
     }
 
+    private fun checkValues(): Boolean {
+        return when {
+            min.isBlank() || max.isBlank() -> {
+                Toast.makeText(activity, "Please, input your values", Toast.LENGTH_SHORT).show()
+                false
+            }
+            max.toInt() < min.toInt() -> {
+                Toast.makeText(activity, "Max less than min", Toast.LENGTH_SHORT).show()
+                false
+            }
+            max.toInt() == min.toInt() -> {
+                Toast.makeText(activity, "Max equals min", Toast.LENGTH_SHORT).show()
+                false
+            }
+            else -> true
+        }
+    }
+
+    private fun changeEnable() {
+        generateButton.isEnabled = checkValues()
+    }
 
     companion object {
-
         @JvmStatic
         fun newInstance(previousResult: Int): FirstFragment {
             val fragment = FirstFragment()
