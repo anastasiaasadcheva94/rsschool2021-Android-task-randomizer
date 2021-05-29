@@ -43,22 +43,19 @@ class FirstFragment : Fragment() {
         super.onViewCreated(view, savedInstanceState)
         previousResult = view.findViewById(R.id.previous_result)
         generateButton = view.findViewById(R.id.generate)
-        generateButton.isEnabled = false
 
         val result = arguments?.getInt(PREVIOUS_RESULT_KEY)
         previousResult.text = "Previous result: ${result.toString()}"
 
         view.findViewById<EditText>(R.id.min_value).addTextChangedListener {
             min = view.findViewById<EditText>(R.id.min_value).text.toString()
-            changeEnable()
         }
 
         view.findViewById<EditText>(R.id.max_value).addTextChangedListener {
             max = view.findViewById<EditText>(R.id.max_value).text.toString()
-            changeEnable()
         }
 
-        view.findViewById<EditText>(R.id.max_value)
+        view.findViewById<EditText>(R.id.max_value) //enter keyboard
             .setOnKeyListener(View.OnKeyListener { v, keyCode, event ->
                 if (keyCode == KeyEvent.KEYCODE_ENTER && event.action == KeyEvent.ACTION_UP) {
                     if (checkValues()) {
@@ -70,7 +67,11 @@ class FirstFragment : Fragment() {
             })
 
         generateButton.setOnClickListener {
-            firstFragmentListener.secondFragment(min.toInt(), max.toInt())
+            if(checkValues()){
+                firstFragmentListener.secondFragment(min.toInt(), max.toInt())
+            }else{
+                checkValues()
+            }
         }
     }
 
@@ -92,10 +93,6 @@ class FirstFragment : Fragment() {
         }
     }
 
-    private fun changeEnable() {
-        generateButton.isEnabled = checkValues()
-    }
-
     companion object {
         @JvmStatic
         fun newInstance(previousResult: Int): FirstFragment {
@@ -105,7 +102,6 @@ class FirstFragment : Fragment() {
             fragment.arguments = args
             return fragment
         }
-
         private const val PREVIOUS_RESULT_KEY = "PREVIOUS_RESULT"
     }
 }
