@@ -55,7 +55,7 @@ class FirstFragment : Fragment() {
             max = view.findViewById<EditText>(R.id.max_value).text.toString()
         }
 
-        view.findViewById<EditText>(R.id.max_value) //enter keyboard
+        /*view.findViewById<EditText>(R.id.max_value) //enter keyboard
             .setOnKeyListener(View.OnKeyListener { v, keyCode, event ->
                 if (keyCode == KeyEvent.KEYCODE_ENTER && event.action == KeyEvent.ACTION_UP) {
                     if (checkValues()) {
@@ -64,7 +64,7 @@ class FirstFragment : Fragment() {
                     return@OnKeyListener true
                 }
                 false
-            })
+            })*/
 
         generateButton.setOnClickListener {
             if(checkValues()){
