@@ -1,5 +1,6 @@
 package com.rsschool.android2021
 
+import android.annotation.SuppressLint
 import android.content.Context
 import android.os.Bundle
 import android.view.KeyEvent
@@ -39,6 +40,7 @@ class FirstFragment : Fragment() {
         return inflater.inflate(R.layout.fragment_first, container, false)
     }
 
+    @SuppressLint("SetTextI18n")
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
         previousResult = view.findViewById(R.id.previous_result)
@@ -77,6 +79,10 @@ class FirstFragment : Fragment() {
 
     private fun checkValues(): Boolean {
         return when {
+            min.toLong() > Int.MAX_VALUE || max.toLong() > Int.MAX_VALUE -> {
+                Toast.makeText(activity, "Max value is 2 147 483 647", Toast.LENGTH_SHORT).show()
+                false
+            }
             min.isBlank() || max.isBlank() -> {
                 Toast.makeText(activity, "Please, input your values", Toast.LENGTH_SHORT).show()
                 false
